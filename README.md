@@ -9,3 +9,5 @@ Datasets:
 - XJTU bearing dataset: https://biaowang.tech/xjtu-sy-bearing-datasets/ \
 - MFPT fault dataset: https://www.mfpt.org/fault-data-sets/ \
 - Epilectic Seizure Recognitions: https://archive-beta.ics.uci.edu/dataset/388/epileptic+seizure+recognition \
+
+---
