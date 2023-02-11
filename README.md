@@ -18,31 +18,28 @@ In this work the authors have proposed a method of semi-supervised time series c
 
 **Supervised**:
 
-<bash>
-python main.py --dataset CricketX --task supervised --run train
-</bash>
-
-'''
-python main.py --dataset CricketX --task supervised --run train
-'''
+```bash 
+python main.py --dataset CricketX --task supervised --run train 
+```
 
 **Semi-Supervised**:
-'''bash
+```bash
 python main.py --dataset CricketX --task semi-supervised --run train
-'''
+```
 
 
 ## Run model test
 The model is automatically tested after training. If you want to test it later: 
 
 **Supervised**:
-'''bash
+```bash
 python main.py --dataset CricketX --task supervised --run test
-'''
+```
 
 **Semi-Supervised**:
-'''bash
+```bash
 python main.py --dataset CricketX --task semi-supervised --run test
-'''
+```
 
 or you can also use the provided jupyter notebook.
+
