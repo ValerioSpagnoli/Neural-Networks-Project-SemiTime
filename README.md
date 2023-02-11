@@ -14,7 +14,10 @@ In this work the authors have proposed a method of semi-supervised time series c
 * Python 3.6
 * Pytorch version 1.4
 
-## Run model training
+
+## Run model
+
+### Training
 
 **Supervised**:
 
@@ -26,9 +29,10 @@ python main.py --dataset CricketX --task supervised --run train
 ```bash
 python main.py --dataset CricketX --task semi-supervised --run train
 ```
+After training the model is saved in 'checkpoints' folder.
 
 
-## Run model test
+### Test
 The model is automatically tested after training. If you want to test it later: 
 
 **Supervised**:
@@ -42,4 +46,3 @@ python main.py --dataset CricketX --task semi-supervised --run test
 ```
 
 or you can also use the provided jupyter notebook.
-

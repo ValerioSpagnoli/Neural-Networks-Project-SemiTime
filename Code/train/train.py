@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import SubsetRandomSampler, DataLoader
 
 
-def supervised_training(dataset=None, backboneEncoder=None, classificationHead=None, crossEntropy=None, optimizer=None, device=None, setter=None):
+def supervised_training(dataset=None, backboneEncoder=None, classificationHead=None, crossEntropy=None, optimizer=None, device=None, setter=None, save=None):
 
     num_epochs = setter.__get_settings__(variable='num_epochs')
     patience = setter.__get_settings__(variable='patience')
@@ -98,11 +98,13 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
 
-            torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
-            torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+            if save:
+                torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
+                torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
 
-    torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
-    torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+    if save:
+        torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
+        torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
 
     print('---------------------------------------------------------------------------------------------')
     print(f'FINISH SUPERVISED TRAINING')
@@ -118,7 +120,7 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
 
 
 
-def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backboneEncoder=None, classificationHead=None, relationHead=None, crossEntropy=None, binaryCrossEntropy=None, optimizer_clf=None, optimizer_rel=None, device=None, setter=None):
+def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backboneEncoder=None, classificationHead=None, relationHead=None, crossEntropy=None, binaryCrossEntropy=None, optimizer_clf=None, optimizer_rel=None, device=None, setter=None, save=None):
 
     num_epochs = setter.__get_settings__(variable='num_epochs')
     patience = setter.__get_settings__(variable='patience')
@@ -287,11 +289,13 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
 
-            torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
-            torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+            if save:
+                torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
+                torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
     
-    torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
-    torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+    if save:
+        torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
+        torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
 
     print('---------------------------------------------------------------------------------------------')
     print(f'FINISH SEMI-SUPERVISED TRAINING')

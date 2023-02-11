@@ -34,4 +34,4 @@ def test(dataset=None, num_classes=None, backboneEncoder=None, classificationHea
     print('Loss: {:.3f}'.format(loss))
     print('Accuracy: {:.3f}%\n'.format(acc*100))
 
-    confusionMatrix(predictions=preds, targets=targets, num_classes=num_classes)
+    #confusionMatrix(predictions=preds, targets=targets, num_classes=num_classes)
