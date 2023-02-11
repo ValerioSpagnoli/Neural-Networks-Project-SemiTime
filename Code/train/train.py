@@ -12,6 +12,7 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
     patience = setter.__get_settings__(variable='patience')
     batch_size = setter.__get_settings__(variable='batch_size')
     num_folds = setter.__get_settings__(variable='num_folds')
+    dataset_name = setter.__get_settings__(variable='dataset')
 
     total_train_loss=[]
     total_train_acc=[]
@@ -97,6 +98,12 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
 
+            torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
+            torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+
+    torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
+    torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+
     print('---------------------------------------------------------------------------------------------')
     print(f'FINISH SUPERVISED TRAINING')
     print('Average train loss:      {:.3f} -- Average train accuracy:      {:.3f}%'.format(np.mean(total_train_loss), np.mean(total_train_acc)*100))
@@ -117,6 +124,7 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
     patience = setter.__get_settings__(variable='patience')
     batch_size = setter.__get_settings__(variable='batch_size')
     num_folds = setter.__get_settings__(variable='num_folds')
+    dataset_name = setter.__get_settings__(variable='dataset')
 
     Kfolder = KFold(n_splits = num_folds, shuffle = True)
     earlyStopping = EarlyStopping(patience=patience)
@@ -278,6 +286,12 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
                 print('  - earlyStopping: counter = {:d}, min_loss = {:.3f}, min_epoch = {:d}'.format(counter, min_loss, min_epoch))
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
+
+            torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
+            torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
+    
+    torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
+    torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
 
     print('---------------------------------------------------------------------------------------------')
     print(f'FINISH SEMI-SUPERVISED TRAINING')

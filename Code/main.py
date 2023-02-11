@@ -1,9 +1,21 @@
+
+# This project is based on the following paper
+# @inproceedings{fan2021semitime,
+#   title        = {Semi-supervised Time Series Classification by Temporal Relation Prediction},
+#   author       = {Haoyi Fan, Fengbin Zhang, Ruidong Wang, Xunhua Huang, and Zuoyong Li},
+#   booktitle    = {46th International Conference on Acoustics, Speech, and Signal Processing},
+#   year         = {2021},
+#   organization={IEEE}
+# }
+
+
 from settings import globalSettings
 from data import dataframe, dataset
 from models import backboneEncoder, classificationHead, relationHead
 from train import train
 from test import test
 
+import torch
 from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss
 from torch.optim import Adam
 import argparse
@@ -13,7 +25,7 @@ import argparse
 def parse_option():
     parser = argparse.ArgumentParser('argument for training')
 
-    parser.add_argument('--dataset_name', type=str, default='CricketX',
+    parser.add_argument('--dataset', type=str, default='CricketX',
                         choices=['CricketX',
                                  'UWaveGestureLibraryAll',
                                  'InsectWingbeatSound',
@@ -22,8 +34,11 @@ def parse_option():
                                  'EpilepticSeizure',],
                         help='dataset')
     
-    parser.add_argument('--model_name', type=str, default='semi-supervised',
+    parser.add_argument('--task', type=str, default='semi-supervised',
                         choices=['supervised', 'semi-supervised'], help='choose method')
+    
+    parser.add_argument('--run', type=str, default='train',
+                        choices=['train', 'test'], help='training or test of model')
 
     opt = parser.parse_args()
     return opt
@@ -84,9 +99,11 @@ def semi_supervised(labelledDataset=None, unlabelledDataset=None, testDataset=No
 def main():
 
     opt = parse_option()
-    dataset_name = opt.dataset_name
-    model_name = opt.model_name    
+    dataset_name = opt.dataset
+    task = opt.task   
+    run = opt.run 
 
+    # change this options if necessary
     setter = globalSettings.GlobalSettings(dataset=dataset_name, 
                                            num_folds=8, 
                                            num_epochs=1000, 
@@ -94,7 +111,7 @@ def main():
                                            num_features=64, 
                                            learning_rate=0.01, 
                                            patience=200,
-                                           device='mps')
+                                           device='mps') # choose here the device ('cpu', 'cuda:0', 'mps')
 
 
     dataset_name = setter.__get_settings__(variable='dataset')
@@ -105,14 +122,44 @@ def main():
 
     labelledDataset, unlabelledDataset, testDataset, num_classes = get_dataset(dataset_name=dataset_name, split_ratio=split_ratio)
 
-    if model_name == 'supervised':
-        supervised(labelledDataset=labelledDataset, testDataset=testDataset, 
-                   num_classes=num_classes, num_features=num_features, learning_rate=learning_rate, device=device, setter=setter)
+    if run == 'train':
+
+        if task == 'supervised':
+            supervised(labelledDataset=labelledDataset, testDataset=testDataset, 
+                    num_classes=num_classes, num_features=num_features, learning_rate=learning_rate, device=device, setter=setter)
+        
+        elif task == 'semi-supervised':
+            semi_supervised(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, 
+                            testDataset=testDataset, num_classes=num_classes, num_features=num_features, learning_rate=learning_rate, device=device, setter=setter)
     
-    elif model_name == 'semi-supervised':
-        semi_supervised(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, 
-                        testDataset=testDataset, num_classes=num_classes, num_features=num_features, learning_rate=learning_rate, device=device, setter=setter)
-    
+    elif run == 'test':
+
+        crossEntropy = CrossEntropyLoss()
+        classes = {'CricketX': 12, 'UWaveGestureLibraryAll': 8, 'InsectWingbeatSound': 11, 'MFPT': 15, 'XJTU': 15, 'EpilepticSeizure': 5}
+
+        if task == 'supervised':
+            print(f'Test of supervised model on dataset {dataset_name}')
+            backbone_s = backboneEncoder.BackboneEncoder(num_features=num_features)
+            backbone_s.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt'))
+
+            clf_head_s = classificationHead.ClassificationHead(num_features=num_features, num_classes=classes[f'{dataset_name}'])
+            clf_head_s.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+
+            test.test(dataset=testDataset, num_classes=classes[f'{dataset_name}'], 
+                    backboneEncoder=backbone_s, classificationHead=clf_head_s, crossEntropy=crossEntropy, scores=None, device='cpu')
+
+        elif task == 'semi-supervised':
+            print(f'Test of semi-supervised model on dataset {dataset_name}')
+            backbone_ss = backboneEncoder.BackboneEncoder(num_features=num_features)
+            backbone_ss.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt'))
+
+            clf_head_ss = classificationHead.ClassificationHead(num_features=num_features, num_classes=classes[f'{dataset_name}'])
+            clf_head_ss.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+
+            test.test(dataset=testDataset, num_classes=classes[f'{dataset_name}'],
+                    backboneEncoder=backbone_ss, classificationHead=clf_head_ss, crossEntropy=crossEntropy, scores=None, device='cpu')
+
+
 
 if __name__ == "__main__":
     main()

@@ -64,7 +64,12 @@ def load_dataframe(dataset=None, info=False):
 
         df = pd.read_csv('Datasets/EpilepticSeizure/data.csv').drop('X0', axis='columns').rename(columns={'y':'target'})
         df_X = df.iloc[:, 0:len(df.columns)-1].astype('float32')
-        df_y = df.iloc[:, len(df.columns)-1:]
+        df_y = np.array(df.iloc[:, len(df.columns)-1:]).flatten()
+
+        encoder = preprocessing.LabelEncoder()
+        encoder.fit(df_y)
+        df_y = pd.DataFrame(encoder.transform(df_y), columns=['target'])
+
         df = pd.concat([df_X, df_y], axis=1)
 
         l_train = int(np.floor(len(df)*(1/2)))
@@ -74,3 +79,7 @@ def load_dataframe(dataset=None, info=False):
         num_classes = len(set(df['target']))
 
         return df_train, df_test, num_classes
+    
+    else:
+        print('Error: wrong name of dataset.')
+        return 0

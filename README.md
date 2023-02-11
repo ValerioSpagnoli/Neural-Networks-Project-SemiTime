@@ -1,11 +1,43 @@
 # Neural Networks Project -- SemiTime
 
-This repository containts my project for Neural Network course of Artificial Intelligence and Robotics of La Sapienza University. \
-The project is about the following paper: **Semi-supervised time series classification by temporal relation prediction** (https://haoyfan.github.io/papers/SemiTime_ICASSP2021.pdf). \
+This repository containts the project for Neural Network course of Artificial Intelligence and Robotics of La Sapienza University.
+
+The project is based on this paper: **Semi-supervised time series classification by temporal relation prediction** (https://haoyfan.github.io/papers/SemiTime_ICASSP2021.pdf), which describes a novel approach for time series classification.
 In this work the authors have proposed a method of semi-supervised time series classification architecture (termed as **SemiTime**) by gaining from the structure of unlabeled data in a self-supervised manner. 
 
-Datasets: 
-- CricketX, UWaveGestureLibraryAll, InsectWingbeatSound: http://www.timeseriesclassification.com/dataset.php \
-- XJTU bearing dataset: https://biaowang.tech/xjtu-sy-bearing-datasets/ \
-- MFPT fault dataset: https://www.mfpt.org/fault-data-sets/ \
-- Epilectic Seizure Recognitions: https://archive-beta.ics.uci.edu/dataset/388/epileptic+seizure+recognition \
+|Schematic illustration of semi-supervised techniques described| SemiTime architecture|
+|--------|--------|
+|  ![./images/schematic_illustration.png](attachment:image.png)  |  ![./images/SemiTime_architecture.png](attachment:image-2.png)  |
+
+
+## Requirements 
+* Python 3.6
+* Pytorch version 1.4
+
+## Run model training
+
+** Supervised **:
+'''bash
+python main.py --dataset CricketX --task supervised --run train
+'''
+
+** Semi-Supervised **:
+'''bash
+python main.py --dataset CricketX --task semi-supervised --run train
+'''
+
+
+## Run model test
+The model is automatically tested after training. If you want to test it later: 
+
+** Supervised **:
+'''bash
+python main.py --dataset CricketX --task supervised --run test
+'''
+
+** Semi-Supervised **:
+'''bash
+python main.py --dataset CricketX --task semi-supervised --run test
+'''
+
+or you can also use the provided jupyter notebook.
