@@ -7,7 +7,7 @@ In this work the authors have proposed a method of semi-supervised time series c
 
 |Schematic illustration of semi-supervised techniques described| SemiTime architecture|
 |--------|--------|
-|  ![./images/schematic_illustration.png](attachment:image.png)  |  ![./images/SemiTime_architecture.png](attachment:image-2.png)  |
+|  ![schematic_illustration](./images/schematic_illustration.png)  |  ![SemiTime_architecture](./images/SemiTime_architecture.png)  |
 
 
 ## Requirements 
