@@ -17,12 +17,12 @@ In this work the authors have proposed a method of semi-supervised time series c
 ## Run model training
 
 ** Supervised **:
-'''bash
+'''
 python main.py --dataset CricketX --task supervised --run train
 '''
 
 ** Semi-Supervised **:
-'''bash
+'''
 python main.py --dataset CricketX --task semi-supervised --run train
 '''
 
@@ -31,12 +31,12 @@ python main.py --dataset CricketX --task semi-supervised --run train
 The model is automatically tested after training. If you want to test it later: 
 
 ** Supervised **:
-'''bash
+'''
 python main.py --dataset CricketX --task supervised --run test
 '''
 
 ** Semi-Supervised **:
-'''bash
+'''
 python main.py --dataset CricketX --task semi-supervised --run test
 '''
 
