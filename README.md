@@ -17,7 +17,12 @@ In this work the authors have proposed a method of semi-supervised time series c
 ## Run model training
 
 **Supervised**:
-'''bash
+
+<bash>
+python main.py --dataset CricketX --task supervised --run train
+</bash>
+
+'''
 python main.py --dataset CricketX --task supervised --run train
 '''
 
