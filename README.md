@@ -11,8 +11,12 @@ In this work the authors have proposed a method of semi-supervised time series c
 
 
 ## Requirements 
-* Python 3.6
-* Pytorch version 1.4
+* Python 3.9.6
+* torch 1.13.1
+* torchvision 0.14.1
+* numpy 1.24.1
+* sklearn 1.2.1
+* pandas 1.5.3
 
 
 ## Run model
@@ -45,4 +49,4 @@ python main.py --dataset CricketX --task supervised --run test
 python main.py --dataset CricketX --task semi-supervised --run test
 ```
 
-or you can also use the provided jupyter notebook.
+or you can also use the provided notebook.
