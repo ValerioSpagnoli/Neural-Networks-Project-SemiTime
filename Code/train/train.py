@@ -112,8 +112,9 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
     print('Average validation loss: {:.3f} -- Average validation accuracy: {:.3f}%'.format(np.mean(total_val_loss), np.mean(total_val_acc)*100))
     print('---------------------------------------------------------------------------------------------')
 
-    scores = {'train_loss':total_train_loss, 'train_acc':total_train_acc, 'validation_loss':total_val_loss, 'validation_acc':total_val_acc}
-    return scores
+    #scores = {'train_loss':total_train_loss, 'train_acc':total_train_acc, 'validation_loss':total_val_loss, 'validation_acc':total_val_acc}
+
+    return (backboneEncoder, classificationHead)
 
 
 
@@ -305,7 +306,7 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
     print('---------------------------------------------------------------------------------------------')
 
 
-    scores = {'train_loss_clf':total_train_loss_clf, 'train_acc_clf':total_train_acc_clf, 'train_loss_rel':total_train_loss_rel, 
-              'train_acc_rel':total_train_acc_rel, 'validation_loss':total_val_loss, 'validation_accuracy':total_val_acc}
+    #scores = {'train_loss_clf':total_train_loss_clf, 'train_acc_clf':total_train_acc_clf, 'train_loss_rel':total_train_loss_rel, 
+    #          'train_acc_rel':total_train_acc_rel, 'validation_loss':total_val_loss, 'validation_accuracy':total_val_acc}
 
-    return scores
+    return (backboneEncoder, classificationHead)

@@ -8,13 +8,14 @@
 #   organization={IEEE}
 # }
 
-
+# local files
 from settings import globalSettings
 from data import dataframe, dataset
 from models import backboneEncoder, classificationHead, relationHead
 from train import train
 from test import test
 
+# libraries
 import torch
 from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss
 from torch.optim import Adam
@@ -22,6 +23,7 @@ import argparse
 
 # ------------------------------------------------------------------------------------------------------- #
 
+# Provide the parser for lunch this main from terminal 
 def parse_option():
     parser = argparse.ArgumentParser('argument for training')
 
@@ -47,7 +49,7 @@ def parse_option():
     return opt
 
 
-
+# Provide the train set of <dataset name>, both in labelled version and unlabelled version and the test set.
 def get_dataset(dataset_name=None, split_ratio=None):
     df_train, df_test, num_classes = dataframe.load_dataframe(dataset=dataset_name)
     
@@ -58,7 +60,7 @@ def get_dataset(dataset_name=None, split_ratio=None):
     return labelledDataset, unlabelledDataset, testDataset, num_classes
 
 
-
+# Perform the supervised training
 def supervised(labelledDataset=None, num_classes=None, num_features=None, learning_rate=None, device=None, setter=None, save=None):
     backbone = backboneEncoder.BackboneEncoder(num_features=num_features).to(device)
     clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes).to(device)
@@ -66,11 +68,13 @@ def supervised(labelledDataset=None, num_classes=None, num_features=None, learni
     crossEntropy = CrossEntropyLoss().to(device)
     optimizer = Adam([{'params':backbone.parameters(), 'params':clf_head.parameters()}], lr=learning_rate)
 
-    scores = train.supervised_training(dataset=labelledDataset, backboneEncoder=backbone, classificationHead=clf_head, 
+    backbone, clf_head = train.supervised_training(dataset=labelledDataset, backboneEncoder=backbone, classificationHead=clf_head, 
                                        crossEntropy=crossEntropy, optimizer=optimizer,  device=device, setter=setter, save=save)
+    
+    return backbone, clf_head
         
 
-
+# Perform the semi-supervised training with SemiTime algorithm
 def semi_supervised(labelledDataset=None, unlabelledDataset=None, num_classes=None, num_features=None, learning_rate=None, device=None, setter=None, save=None):
     backbone = backboneEncoder.BackboneEncoder(num_features=num_features).to(device)
     clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes).to(device)
@@ -82,39 +86,62 @@ def semi_supervised(labelledDataset=None, unlabelledDataset=None, num_classes=No
     optimizer_clf = Adam([{'params':backbone.parameters(), 'params':clf_head.parameters()}], lr=learning_rate)
     optimizer_rel = Adam([{'params':backbone.parameters(), 'params':rel_head.parameters()}], lr=learning_rate)
 
-    scores = train.semi_supervised_training(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, 
+    backbone, clf_head = train.semi_supervised_training(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, 
                                             backboneEncoder=backbone, classificationHead=clf_head, relationHead=rel_head,
                                             crossEntropy=crossEntropy, binaryCrossEntropy=binaryCrossEntropy,
                                             optimizer_clf=optimizer_clf, optimizer_rel=optimizer_rel, device=device, setter=setter, save=save)
     
+    return backbone, clf_head
     
-
-def test_model(task=None, dataset_name=None, dataset=None, num_classes=None, num_features=None):
+    
+# Perform the test of the model 
+def test_model(task=None, dataset_name=None, dataset=None, num_classes=None, num_features=None, backbone=None, clf_head=None):
 
     crossEntropy = CrossEntropyLoss()
-    classes = {'CricketX': 12, 'UWaveGestureLibraryAll': 8, 'InsectWingbeatSound': 11, 'MFPT': 15, 'XJTU': 15, 'EpilepticSeizure': 5}
 
+    # if task is supervised 
     if task == 'supervised':
-        print(f'Test of supervised model on dataset {dataset_name}')
-        backbone_s = backboneEncoder.BackboneEncoder(num_features=num_features)
-        backbone_s.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt'))
+        print(f'[TEST]:')
+        print(f' - approach: {task}')
+        print(f' - dataset:  {dataset_name}')
 
-        clf_head_s = classificationHead.ClassificationHead(num_features=num_features, num_classes=classes[f'{dataset_name}'])
-        clf_head_s.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+        # if isn't passed a backbone, load the backbone saved in checkpoint
+        if backbone is None:
+            backbone = backboneEncoder.BackboneEncoder(num_features=num_features)
+            backbone.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt'))
 
-        test.test(dataset=dataset, num_classes=classes[f'{dataset_name}'], 
-                backboneEncoder=backbone_s, classificationHead=clf_head_s, crossEntropy=crossEntropy, scores=None, device='cpu')
+        # if isn't passed a classification head, load the classificaiton head saved in checkpoint
+        if clf_head is None:
+            clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes)
+            clf_head.load_state_dict(torch.load(f'checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+
+        backbone.to('cpu')
+        clf_head.to('cpu')
+
 
     elif task == 'semi-supervised':
-        print(f'Test of semi-supervised model on dataset {dataset_name}')
-        backbone_ss = backboneEncoder.BackboneEncoder(num_features=num_features)
-        backbone_ss.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt'))
+        print(f'[TEST]:')
+        print(f' - approach: {task}')
+        print(f' - dataset:  {dataset_name}')
 
-        clf_head_ss = classificationHead.ClassificationHead(num_features=num_features, num_classes=classes[f'{dataset_name}'])
-        clf_head_ss.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+        # if isn't passed a backbone, load the backbone saved in checkpoint
+        if backbone is None:
+            backbone = backboneEncoder.BackboneEncoder(num_features=num_features)
+            backbone.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt'))
 
-        test.test(dataset=dataset, num_classes=classes[f'{dataset_name}'],
-                backboneEncoder=backbone_ss, classificationHead=clf_head_ss, crossEntropy=crossEntropy, scores=None, device='cpu')
+        # if isn't passed a classification head, load the classificaiton head saved in checkpoint
+        if clf_head is None:
+            clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes)
+            clf_head.load_state_dict(torch.load(f'checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt'))
+
+        backbone.to('cpu')
+        clf_head.to('cpu')
+        
+    else: 
+        print('Error: task can be {supervised, semi-supervised}.')
+        return
+    
+    test.test(dataset=dataset, backboneEncoder=backbone, classificationHead=clf_head, crossEntropy=crossEntropy, device='cpu')
     
 
 
@@ -134,7 +161,7 @@ def main():
     # change this options if necessary
     setter = globalSettings.GlobalSettings(dataset=dataset_name, 
                                            num_folds=8, 
-                                           num_epochs=1000, 
+                                           num_epochs=1000,
                                            batch_size=128, 
                                            num_features=64, 
                                            learning_rate=0.01, 
@@ -153,12 +180,12 @@ def main():
     if run == 'train':
 
         if task == 'supervised':
-            supervised(labelledDataset=labelledDataset, num_classes=num_classes, num_features=num_features, 
-                       learning_rate=learning_rate, device=device, setter=setter, save=save)
+            backbone, clf_head = supervised(labelledDataset=labelledDataset, num_classes=num_classes, num_features=num_features, 
+                                            learning_rate=learning_rate, device=device, setter=setter, save=save)
         
         elif task == 'semi-supervised':
-            semi_supervised(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, num_classes=num_classes, 
-                            num_features=num_features, learning_rate=learning_rate, device=device, setter=setter, save=save)
+            backbone, clf_head = semi_supervised(labelledDataset=labelledDataset, unlabelledDataset=unlabelledDataset, num_classes=num_classes, 
+                                                 num_features=num_features, learning_rate=learning_rate, device=device, setter=setter, save=save)
     
     elif run == 'test':
         test_model(task=task, dataset_name=dataset_name, dataset=testDataset, num_classes=num_classes, num_features=num_features)

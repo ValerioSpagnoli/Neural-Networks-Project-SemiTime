@@ -32,9 +32,10 @@ class EarlyStopping():
             return self.counter, self.stop, self.min_loss, self.min_epoch
 
         else:   
-            if loss >= self.min_loss: 
+            if loss >= self.min_loss:
                 self.counter+=1
                 self.stop=False
+            
             else:
                 self.min_loss=loss
                 self.min_epoch=epoch

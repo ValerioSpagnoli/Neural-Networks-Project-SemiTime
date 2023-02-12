@@ -1,7 +1,4 @@
 import torch
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 def accuracy(predictions=None, targets=None, task=None):
 
@@ -26,18 +23,5 @@ def accuracy(predictions=None, targets=None, task=None):
         return accuracy.item()
     
 
-def confusionMatrix(predictions=None, targets=None, num_classes=None):
-    classes = range(num_classes)
-    targets = targets.to('cpu')
-    predictions = predictions.to('cpu')
-
-    cm = confusion_matrix(targets, predictions, normalize='true')
-    plt.figure(figsize=(8,8))
-    sns.set(font_scale=1)
-    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 10}, yticklabels=classes, xticklabels=classes)
-    plt.title('Confusion Matrix', fontdict={'fontsize':14})
-    plt.ylabel('Ground Truth', fontdict={'fontsize':11})
-    plt.xlabel('Prediction', fontdict={'fontsize':11})
-    plt.show()  
 
 
