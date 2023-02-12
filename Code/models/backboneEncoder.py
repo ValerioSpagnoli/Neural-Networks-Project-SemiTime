@@ -1,5 +1,8 @@
 import torch.nn as nn
 
+# Important: the parameter of convolutional layers has been taken from the original code (https://github.com/haoyfan/SemiTime)
+
+
 class BackboneEncoder(nn.Module):
     def __init__(self, num_features=None):
         super().__init__()

@@ -51,6 +51,7 @@ def parse_option():
 
 # Provide the train set of <dataset name>, both in labelled version and unlabelled version and the test set.
 def get_dataset(dataset_name=None, split_ratio=None):
+
     df_train, df_test, num_classes = dataframe.load_dataframe(dataset=dataset_name)
     
     labelledDataset = dataset.LabelledDataset(dataframe=df_train, augmentation=True)
@@ -60,12 +61,17 @@ def get_dataset(dataset_name=None, split_ratio=None):
     return labelledDataset, unlabelledDataset, testDataset, num_classes
 
 
-# Perform the supervised training
-def supervised(labelledDataset=None, num_classes=None, num_features=None, learning_rate=None, device=None, setter=None, save=None):
-    backbone = backboneEncoder.BackboneEncoder(num_features=num_features).to(device)
-    clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes).to(device)
+# SUPERVISED TRAINING
+# Model: Backbone Encoder + Classification Head
+# Loss: Cross Entropy Loss
+# Optimizer: Adam
 
-    crossEntropy = CrossEntropyLoss().to(device)
+def supervised(labelledDataset=None, num_classes=None, num_features=None, learning_rate=None, device=None, setter=None, save=None):
+
+    backbone = backboneEncoder.BackboneEncoder(num_features=num_features).to(device) 
+    clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes).to(device) 
+
+    crossEntropy = CrossEntropyLoss().to(device) 
     optimizer = Adam([{'params':backbone.parameters(), 'params':clf_head.parameters()}], lr=learning_rate)
 
     backbone, clf_head = train.supervised_training(dataset=labelledDataset, backboneEncoder=backbone, classificationHead=clf_head, 
@@ -74,8 +80,15 @@ def supervised(labelledDataset=None, num_classes=None, num_features=None, learni
     return backbone, clf_head
         
 
-# Perform the semi-supervised training with SemiTime algorithm
+# SEMI-SUPERVISED TRAINING (SemiTime)
+# Model for classification: Backbone Encoder + Classification Head
+# Model for relation: Backbone Encoder + Relation Head
+# Loss for classification: Cross Entropy Loss
+# Loss for relation: Binary Cross Entropy
+# Optimizer: Adam (two different Adam optimizer, one for classification and the other for relation)
+
 def semi_supervised(labelledDataset=None, unlabelledDataset=None, num_classes=None, num_features=None, learning_rate=None, device=None, setter=None, save=None):
+
     backbone = backboneEncoder.BackboneEncoder(num_features=num_features).to(device)
     clf_head = classificationHead.ClassificationHead(num_features=num_features, num_classes=num_classes).to(device)
     rel_head = relationHead.RelationHead(num_features=num_features).to(device)

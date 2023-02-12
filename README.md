@@ -2,7 +2,7 @@
 
 This repository containts the project for Neural Network course of Artificial Intelligence and Robotics of La Sapienza University.
 
-The project is based on this paper: **Semi-supervised time series classification by temporal relation prediction** (https://haoyfan.github.io/papers/SemiTime_ICASSP2021.pdf), which describes a novel approach for time series classification.
+The project has been based on this paper: **Semi-supervised time series classification by temporal relation prediction** (https://haoyfan.github.io/papers/SemiTime_ICASSP2021.pdf), which describes a novel approach for time series classification.
 In this work the authors have proposed a method of semi-supervised time series classification architecture (termed as **SemiTime**) by gaining from the structure of unlabeled data in a self-supervised manner. 
 
 |Schematic illustration of semi-supervised techniques described| SemiTime architecture|
@@ -26,12 +26,14 @@ In this work the authors have proposed a method of semi-supervised time series c
 **Supervised**:
 
 ```bash 
-python main.py --dataset CricketX --task supervised --run train 
+cd Code
+python main.py --dataset CricketX --task supervised --run train --save true
 ```
 
 **Semi-Supervised**:
 ```bash
-python main.py --dataset CricketX --task semi-supervised --run train
+cd Code
+python main.py --dataset CricketX --task semi-supervised --run train --save true
 ```
 After training the model is saved in 'checkpoints' folder.
 
@@ -41,12 +43,20 @@ The model is automatically tested after training. If you want to test it later:
 
 **Supervised**:
 ```bash
+cd Code
 python main.py --dataset CricketX --task supervised --run test
 ```
 
 **Semi-Supervised**:
 ```bash
+cd Code
 python main.py --dataset CricketX --task semi-supervised --run test
 ```
 
 or you can also use the provided notebook.
+
+### Parse options:
+- dataset: {CricketX, UWaveGestureLibraryAll, InsectWingbeatSound, MFPT, XJTU, EpilepticSeizure} 
+- task: {supervised, semi-supervised} 
+- run: {train, test}
+- save: {true, false} (save or not the model in ./Code/checkpoint/{task}/{dataset})

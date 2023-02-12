@@ -1,5 +1,8 @@
 import numpy as np
 
+# Important: this functions have been taken from original code (https://github.com/haoyfan/SemiTime)
+
+
 def magnitude_warp(x, sigma=0.2, knot=4):
     
     from scipy.interpolate import CubicSpline

@@ -5,9 +5,15 @@ import numpy as np
 import torch
 from torch.utils.data import SubsetRandomSampler, DataLoader
 
+# --------------------------------------------------------------------------- #
+
+
+# Implementation of supervised training algorithm.
+# this function uses the Cross Entropy Loss and Adam optimizer
 
 def supervised_training(dataset=None, backboneEncoder=None, classificationHead=None, crossEntropy=None, optimizer=None, device=None, setter=None, save=None):
 
+    # takes the setting of the project
     num_epochs = setter.__get_settings__(variable='num_epochs')
     patience = setter.__get_settings__(variable='patience')
     batch_size = setter.__get_settings__(variable='batch_size')
@@ -27,10 +33,9 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
     print(f'START SUPERVISED TRAINING -- number of folds: {num_folds}, number of epochs: {num_epochs}, patience: {patience}')
     print('---------------------------------------------------------------------------------------------\n')
 
-    
     for fold, (train_idx, val_idx) in enumerate(Kfolder.split(np.arange(len(dataset)))): 
 
-        earlyStopping.__restart__()
+        earlyStopping.__restart__() # init the early stopping variables 
         
         train_sampler = SubsetRandomSampler(train_idx)
         val_sampler = SubsetRandomSampler(val_idx)
@@ -42,6 +47,10 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
 
         for e in range(num_epochs):
 
+            #------------------------------#
+            # TRAINING 
+            #------------------------------#
+
             backboneEncoder.train()
             classificationHead.train()
 
@@ -51,6 +60,7 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
 
                 optimizer.zero_grad()
 
+                # the output of backbone encoder is given in input to classification head
                 outputs = backboneEncoder(features)
                 outputs = classificationHead(outputs)  
 
@@ -64,6 +74,9 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
             train_loss = np.mean(total_train_loss)
             train_acc = np.mean(total_train_acc)*100
 
+            #------------------------------#
+            # TRAINING 
+            #------------------------------#
 
             backboneEncoder.eval()
             classificationHead.eval()
@@ -85,10 +98,13 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
             val_loss = np.mean(total_val_loss)
             val_acc = np.mean(total_val_acc)*100
 
+            #------------------------------#
+            # RESULTS + CHECK EARLY STOPPING
+            #------------------------------#
+
             print(f'[{fold+1}/{num_folds}][{e+1}/{num_epochs}]:')
             print('  - training:      loss = {:.3f}, accuracy = {:.3f}%'.format(train_loss, train_acc))
             print('  - validation:    loss = {:.3f}, accuracy = {:.3f}%'.format(val_loss, val_acc))
-
 
             counter, stop, min_loss, min_epoch = earlyStopping.__check__(loss=val_loss, epoch=e+1)
             if not stop:
@@ -98,7 +114,7 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
 
-            if save:
+            if save: # save the model after each epoch
                 torch.save(backboneEncoder.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_backbone.pt')
                 torch.save(classificationHead.state_dict(), f'./checkpoints/supervised/{dataset_name}/{dataset_name}_classification_head.pt')
 
@@ -118,11 +134,15 @@ def supervised_training(dataset=None, backboneEncoder=None, classificationHead=N
 
 
 
+# --------------------------------------------------------------------------- #
 
-
+# Implementation of SemiTime algorithm
+# This function uses the Cross Entropy Loss for supervised part and the Binary Cross Entropy for self-supervised part
+# Moreover uses two different Adam optmizer, one for backbone + classification head, and one for backbone + relation head
 
 def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backboneEncoder=None, classificationHead=None, relationHead=None, crossEntropy=None, binaryCrossEntropy=None, optimizer_clf=None, optimizer_rel=None, device=None, setter=None, save=None):
 
+    # takes the setting of the project
     num_epochs = setter.__get_settings__(variable='num_epochs')
     patience = setter.__get_settings__(variable='patience')
     batch_size = setter.__get_settings__(variable='batch_size')
@@ -148,7 +168,7 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
     
     for fold, (train_idx, val_idx) in enumerate(Kfolder.split(np.arange(len(labelledDataset)))): 
 
-        earlyStopping.__restart__()
+        earlyStopping.__restart__() # init early stopping 
 
         train_sampler = SubsetRandomSampler(train_idx)
         val_sampler = SubsetRandomSampler(val_idx)
@@ -290,7 +310,7 @@ def semi_supervised_training(labelledDataset=None, unlabelledDataset=None, backb
                 print('Stop training on fold {:d} at epoch {:d}\n'.format(fold+1, e+1))
                 break
 
-            if save:
+            if save: # save the model after each epoch
                 torch.save(backboneEncoder.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_backbone.pt')
                 torch.save(classificationHead.state_dict(), f'./checkpoints/semi-supervised/{dataset_name}/{dataset_name}_classification_head.pt')
     
