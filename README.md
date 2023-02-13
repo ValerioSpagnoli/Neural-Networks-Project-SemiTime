@@ -1,6 +1,6 @@
 # Neural Networks Project -- SemiTime
 
-This repository containts the project for Neural Network course of Artificial Intelligence and Robotics of La Sapienza University.
+This repository contains the Project of the Neural Networks course of the master in Artificial Intelligence and Robotics at La Sapienza University in Rome.
 
 The project has been based on this paper: **Semi-supervised time series classification by temporal relation prediction** (https://haoyfan.github.io/papers/SemiTime_ICASSP2021.pdf), which describes a novel approach for time series classification.
 In this work the authors have proposed a method of semi-supervised time series classification architecture (termed as **SemiTime**) by gaining from the structure of unlabeled data in a self-supervised manner. 
